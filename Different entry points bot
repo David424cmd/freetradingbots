@@ -1,0 +1,182 @@
+<xml xmlns="https://developers.google.com/blockly/xml" is_dbot="true" collection="false">
+  <variables>
+    <variable id="stake">stake</variable>
+    <variable id="loss">loss</variable>
+    <variable id="martingale">martingale</variable>
+    <variable id="entry_point">entry_point</variable>
+  </variables>
+  <block type="trade_definition" id="trade" x="20" y="20">
+    <field name="MARKET">synthetic_index</field>
+    <field name="SYMBOL">1HZ10V</field>
+    <field name="TRADETYPECAT">digits</field>
+    <field name="TRADETYPE">matches</field>
+    <next>
+      <block type="trade_parameters" id="params">
+        <field name="DURATIONTYPE">t</field>
+        <field name="DURATION">1</field>
+        <field name="CURRENCY">USD</field>
+        <value name="AMOUNT">
+          <block type="variables_get">
+            <field name="VAR" id="stake">stake</field>
+          </block>
+        </value>
+        <next>
+          <block type="trade_definition_tradeoptions" id="options">
+            <mutation inputamount_list="1"></mutation>
+            <value name="TRADE_OPTIONS_0">
+              <block type="variables_get">
+                <field name="VAR" id="entry_point">entry_point</field>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+  <block type="variables_set" id="stake_init" x="20" y="260">
+    <field name="VAR" id="stake">stake</field>
+    <value name="VALUE">
+      <block type="math_number">
+        <field name="NUM">1</field>
+      </block>
+    </value>
+    <next>
+      <block type="variables_set" id="loss_init">
+        <field name="VAR" id="loss">loss</field>
+        <value name="VALUE">
+          <block type="math_number">
+            <field name="NUM">0</field>
+          </block>
+        </value>
+        <next>
+          <block type="variables_set" id="martingale_init">
+            <field name="VAR" id="martingale">martingale</field>
+            <value name="VALUE">
+              <block type="math_number">
+                <field name="NUM">2</field>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set" id="entry_init">
+                <field name="VAR" id="entry_point">entry_point</field>
+                <value name="VALUE">
+                  <block type="math_number">
+                    <field name="NUM">0</field>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+  <block type="after_purchase" id="after_trade" x="20" y="500">
+    <statement name="AFTERPURCHASE_STACK">
+      <block type="controls_if">
+        <mutation elseif="1"></mutation>
+        <value name="IF0">
+          <block type="contract_check_result">
+            <field name="CHECK_RESULT">win</field>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="variables_set">
+            <field name="VAR" id="loss">loss</field>
+            <value name="VALUE">
+              <block type="math_number">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set">
+                <field name="VAR" id="stake">stake</field>
+                <value name="VALUE">
+                  <block type="math_number">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </statement>
+        <value name="IF1">
+          <block type="contract_check_result">
+            <field name="CHECK_RESULT">loss</field>
+          </block>
+        </value>
+        <statement name="DO1">
+          <block type="variables_set">
+            <field name="VAR" id="loss">loss</field>
+            <value name="VALUE">
+              <block type="math_arithmetic">
+                <field name="OP">ADD</field>
+                <value name="A">
+                  <block type="variables_get">
+                    <field name="VAR" id="loss">loss</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <next>
+              <block type="variables_set">
+                <field name="VAR" id="stake">stake</field>
+                <value name="VALUE">
+                  <block type="math_arithmetic">
+                    <field name="OP">MULTIPLY</field>
+                    <value name="A">
+                      <block type="variables_get">
+                        <field name="VAR" id="stake">stake</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="variables_get">
+                        <field name="VAR" id="martingale">martingale</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+              </block>
+            </next>
+          </block>
+        </statement>
+        <next>
+          <!-- Cycle entry point -->
+          <block type="variables_set">
+            <field name="VAR" id="entry_point">entry_point</field>
+            <value name="VALUE">
+              <block type="math_arithmetic">
+                <field name="OP">MODULO</field>
+                <value name="A">
+                  <block type="math_arithmetic">
+                    <field name="OP">ADD</field>
+                    <value name="A">
+                      <block type="variables_get">
+                        <field name="VAR" id="entry_point">entry_point</field>
+                      </block>
+                    </value>
+                    <value name="B">
+                      <block type="math_number">
+                        <field name="NUM">1</field>
+                      </block>
+                    </value>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number">
+                    <field name="NUM">3</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+          </block>
+        </next>
+      </block>
+    </statement>
+  </block>
+</xml>
